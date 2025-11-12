@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: "http://192.168.6.30:5173",
+    origin: "http://localhost:5173/",
     credentials: true
 }))
 
@@ -27,7 +27,7 @@ app.use("/", defaultRouter);
 mongoose.connect(process.env.DB_URL_STRING + "clone-project2")
     .then((res) => {
         console.log("DB connected successfully.!")
-        app.listen(process.env.PORT, "0.0.0.0", () => {
+        app.listen(process.env.PORT, () => {
             console.log(`server running at port ${process.env.PORT}`)
         })
     }).catch((err) => {
