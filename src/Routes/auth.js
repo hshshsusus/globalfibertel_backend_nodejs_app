@@ -1,7 +1,7 @@
 const express = require("express");
 const { isValidCredentials, isValidAdminCredentials } = require("../utils/isValidAdmin");
 const Admin = require("../Database/adminSchema");
-const { generateHash, isValidPassword, adminAuth, sentOTP } = require("../utils/reusableFunctions");
+const { generateHash, isValidPassword, adminAuth, sentOTP, userAuth } = require("../utils/reusableFunctions");
 const jwt = require("jsonwebtoken");
 const { emailRegex } = require("../utils/constants");
 const bcrypt = require("bcrypt");
@@ -170,7 +170,6 @@ authRouter.post("/login/user/otp", async (req, res) => {
 
         const otp = parseInt(Math.floor(Math.random() * 100000));
         const otpExpiry = currentTimeStamp + 600;
-        console.log(otp);
 
         await sentOTP(email, otp);
 
@@ -178,7 +177,7 @@ authRouter.post("/login/user/otp", async (req, res) => {
             $set: { otp: otp, otpExpiry: otpExpiry }
         }, { returnDocument: "after" }).select("email fristName lastName")
 
-        res.status(200).json({updatedUser, message: "otp sent successfully!" })
+        res.status(200).json({ updatedUser, message: "otp sent successfully!" })
     } catch (error) {
         res.status(404).json({ message: error.message })
     }
@@ -196,7 +195,7 @@ authRouter.post("/login/user/otp/verify", async (req, res) => {
         }
 
         const user = await User.findOne({ email })
-        
+
         if (!user) {
             throw new Error("user not found..!")
         }
@@ -225,17 +224,25 @@ authRouter.post("/login/user/otp/verify", async (req, res) => {
     }
 })
 
-authRouter.post("/logout/user", async (req, res) =>{
+authRouter.post("/logout/user", async (req, res) => {
     try {
-        const {token} = req.cookies;
-        if(!token){
+        const { token } = req.cookies;
+        if (!token) {
             throw new Error("Token got expired.!")
         }
-        res.cookie('token', token, {expires:new Date(0)})
+        res.cookie('token', token, { expires: new Date(0) })
         res.status(200).json("logout successfully.!")
     } catch (error) {
-        res.status(400).json({message:error.message})
+        res.status(400).json({ message: error.message })
     }
-} )
+})
+
+authRouter.get("/profile/user/get", userAuth, async (req, res) => {
+    try {
+        res.status(200).json(req.user)
+    } catch (error) {
+        res.status(401).json({ message: error.message })
+    }
+})
 
 module.exports = authRouter;
