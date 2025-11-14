@@ -19,7 +19,7 @@ app.use(cookieParser());
 const allowedOrigins = ["http://192.168.6.30:5173", "http://localhost:5173"];
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://192.168.6.30:5173",
   credentials: true,
 }));
 
