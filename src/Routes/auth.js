@@ -169,17 +169,54 @@ authRouter.post("/login/user/otp", async (req, res) => {
         }
 
         const otp = parseInt(Math.floor(Math.random() * 100000));
-        const otpExpiry = currentTimeStamp + 600;
+        const otpExpiry = currentTimeStamp + 120;
 
         await sentOTP(email, otp);
 
         const updatedUser = await User.findOneAndUpdate({ _id: user._id }, {
             $set: { otp: otp, otpExpiry: otpExpiry }
-        }, { returnDocument: "after" }).select("email fristName lastName")
+        }, { returnDocument: "after" }).select("email fristName lastName otpExpiry")
 
-        res.status(200).json({ updatedUser, message: "otp sent successfully!" })
+        res.status(200).json(updatedUser, { message: "OTP sent successfully.!" })
     } catch (error) {
         res.status(404).json({ message: error.message })
+    }
+})
+
+authRouter.post("/login/user/otp/resend", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+
+        if (!email) {
+            throw new Error("Invalid credentials.!")
+        }
+
+        const validUser = await User.findOne({ email: email });
+
+        if (!validUser) {
+            throw new Error("Invalid credentials.!")
+        }
+
+        const currentTimeStamp = new Date().getTime() / 1000;
+
+        if (validUser.otpExpiry > currentTimeStamp) {
+            throw new Error("OTP already sent.!")
+        }
+
+        const otp = Math.floor(Math.random() * 100000);
+        const otpExpiry = currentTimeStamp + 120;
+
+        await sentOTP(email, otp);
+
+        const updatedUser = await User.findOneAndUpdate({ _id: validUser._id }, {
+            $set: { otp, otpExpiry }
+        }, { new: true }).select("email fristName lastName otpExpiry")
+            console.log(updatedUser)
+        res.status(202).json(updatedUser, {message: "Otp resend successfully" })
+
+    } catch (error) {
+        res.status(200).json({ message: error.message })
     }
 })
 
@@ -209,15 +246,18 @@ authRouter.post("/login/user/otp/verify", async (req, res) => {
             throw new Error("Invalid OTP..!")
         }
 
-        const token = await jwt.sign({ email: email }, process.env.JWT_KEY);
+        const token = await jwt.sign({ email: email, _id: user._id }, process.env.JWT_KEY, { expiresIn: 3600 });
+
+        res.cookie("token", token)
 
         const unsetOTPDetails = await User.findOneAndUpdate({ email: user.email }, {
             $unset: { otp: "", otpExpiry: "" }
         })
 
-        res.cookie("token", token)
-
-        res.status(200).json(user)
+        res.status(200).json({
+            message: "OTP verified",
+            user,
+        })
 
     } catch (error) {
         res.status(404).json({ message: error.message });
