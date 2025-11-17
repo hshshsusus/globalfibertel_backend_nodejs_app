@@ -9,7 +9,8 @@ const cookieParser = require("cookie-parser");
 const defaultRouter = require("./src/Routes/default");
 const connection = require("./src/Database_SQL/connectDB");
 const contactRouter = require("./src/Routes/contact");
-// const connaction = require("./src/Database_SQL/connectDB")
+const chatBotRouter = require("./src/Routes/chatBot");
+
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use("/", plansRouter);
 app.use("/", authRouter);
 app.use("/", defaultRouter);
 app.use("/", contactRouter);
+app.use("/", chatBotRouter);
 
 mongoose.connect(process.env.DB_URL_STRING + "clone-project2")
     .then((res) => {
