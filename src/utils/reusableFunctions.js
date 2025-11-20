@@ -113,6 +113,16 @@ const sendMailToAdmin = async (props) => {
     })
 }
 
+const getBotResponse = (userQuestion, QA) => {
+    const userQuestion1 = userQuestion.toLowerCase();
+    for (let element of QA) {
+        if (userQuestion1.includes(element?.question?.toLowerCase().slice(0,8))) {
+            return element.answer;
+        }
+    }
+    return "Sorry, I don't understand. Please ask something related to our services.";
+}
+
 module.exports = {
     generateHash,
     isValidPassword,
@@ -120,4 +130,5 @@ module.exports = {
     sentOTP,
     userAuth,
     sendMailToAdmin,
+    getBotResponse,
 }
