@@ -164,4 +164,28 @@ defaultRouter.get("/home/topnav", async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 })
+
+defaultRouter.get("/home/footer", async (req, res) => {
+    try {
+        const footer = {};
+
+        const services = await connection.promise().query("select * from our_services");
+        footer.ourServices = services[0];
+        
+        const importentLinks = await connection.promise().query("select * from importentlink");
+        footer.importentLinks = importentLinks[0];
+
+        const products = await connection.promise().query("select * from our_products");
+        footer.ourProducts = products[0];
+
+        const companyInfo = await connection.promise().query("select * from company_info");
+        footer.companyInfo = companyInfo[0];
+
+        res.status(200).json(footer)
+
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+})
+
 module.exports = defaultRouter;

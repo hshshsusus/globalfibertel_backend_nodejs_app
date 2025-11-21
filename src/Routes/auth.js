@@ -162,6 +162,7 @@ authRouter.post("/login/user/otp", async (req, res) => {
         if (!user) {
             throw new Error("User not found.!")
         }
+        
         const currentTimeStamp = new Date().getTime() / 1000;
 
         if (user.otp && user.otpExpiry && user.otpExpiry > currentTimeStamp) {

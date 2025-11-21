@@ -116,7 +116,7 @@ const sendMailToAdmin = async (props) => {
 const getBotResponse = (userQuestion, QA) => {
     const userQuestion1 = userQuestion.toLowerCase();
     for (let element of QA) {
-        if (userQuestion1.includes(element?.question?.toLowerCase().slice(0,8))) {
+        if (element?.question?.toLowerCase().includes(userQuestion1)) {
             return element.answer;
         }
     }

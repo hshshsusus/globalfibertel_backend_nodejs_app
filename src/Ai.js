@@ -1,11 +1,13 @@
 const { GoogleGenAI } = require("@google/genai");
+const { default: axios } = require("axios");
 const dotenv = require("dotenv");
+const { BASE_URL } = require("./utils/constants");
 
 dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-async function main(message){
+async function main(message) {
     console.log(message)
     const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
@@ -17,4 +19,23 @@ async function main(message){
     return response.text;
 }
 
-module.exports = main;
+const handleCustomerData = async () => {
+    try {
+        const res = await axios.get(
+            BASE_URL+"customers.php?username=pdr_chennakeshava",
+            {
+                headers: {
+                    "API-KEY": process.env.CUSTOMER_API_KEY,
+                },
+            }
+        );
+        return res.data;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+module.exports = {
+    main,
+    handleCustomerData
+};

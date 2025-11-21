@@ -10,6 +10,8 @@ const defaultRouter = require("./src/Routes/default");
 const connection = require("./src/Database_SQL/connectDB");
 const contactRouter = require("./src/Routes/contact");
 const chatBotRouter = require("./src/Routes/chatBot");
+// const { handleCustomerData } = require("./src/Ai");
+const customerRoute = require("./src/Routes/customer");
 
 
 dotenv.config();
@@ -29,6 +31,9 @@ app.use("/", authRouter);
 app.use("/", defaultRouter);
 app.use("/", contactRouter);
 app.use("/", chatBotRouter);
+app.use("/", customerRoute);
+
+// handleCustomerData();
 
 mongoose.connect(process.env.DB_URL_STRING + "clone-project2")
     .then((res) => {
